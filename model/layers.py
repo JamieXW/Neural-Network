@@ -40,11 +40,11 @@ class layer:
 class Dense(layer):
     def __init__(self, input_size, output_size):
         """
-        Initializes the Dense layer with random weights and zero biases.
+        A layer in the neural network 
 
         Parameters:
-            input_size (int): Number of input features.
-            output_size (int): Number of output features (neurons).
+            weights (np.ndarray): Weights of the layer, initialized randomly.
+            biases (np.ndarray): Biases of the layer, initialized to zeros.
         """
         self.weights = np.random.randn(input_size, output_size) * 0.01
         self.biases = np.zeros((1, output_size))
