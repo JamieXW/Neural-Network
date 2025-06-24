@@ -2,6 +2,7 @@ import numpy as np
 from model.layers import Dense
 from model.model import Model
 from model.activation import ReLu
+from model.activation import Softmax
 from model.optimizer import SGD
 from model.loss import CrossEntropyLoss
 
@@ -17,21 +18,26 @@ def one_hot(y, num_classes):
     return np.eye(num_classes)[y]
 
 def main():
-    x_train, y_train = load_fashion_mnist_csv('FashionMNIST/fashion-mnist-test.csv')
+    x_train, y_train = load_fashion_mnist_csv('./FashionMNIST/fashion-mnist_test.csv')
     num_classes = 10
     y_train_one_hot = one_hot(y_train, num_classes)
 
     model = Model()
-    model.add(Dense(784, 128))
+    model.add(Dense(784, 256))
     model.add(ReLu())
-    model.add(Dense(128, num_classes))
+    model.add(Dense(256, 128))
+    model.add(ReLu())
+    model.add(Dense(128, 64))
+    model.add(ReLu())
+    model.add(Dense(64, num_classes))
+    model.add(Softmax())
+
 
     loss_function = CrossEntropyLoss()
-    optimizer = SGD()
 
     epochs = 5 # term for number of passes through the training datatset
     batch_size = 64 # the number of training samples used in one iteration of training
-    learning_rate = 0.01 # the step size of the optimizer when updating the model parameters
+    learning_rate = 0.001 # the step size of the optimizer when updating the model parameters
 
     for epoch in range(epochs):
         indices = np.arange(x_train.shape[0])
@@ -46,6 +52,15 @@ def main():
             # Forward pass
             predictions = model.forward(x_batch)
             loss = loss_function.forward(y_batch, predictions)
+
+            # # debug prints
+            # print("x_batch shape:", x_batch.shape)
+            # print("y_batch shape:", y_batch.shape)
+            # print("predictions min/max:", predictions.min(), predictions.max())
+            # print("loss:", loss)
+            # if np.isnan(predictions).any() or np.isnan(loss):
+            #     print("NaN detected!")
+            #     break
 
             # Backward pass
             gradient = loss_function.backward(y_batch, predictions)
