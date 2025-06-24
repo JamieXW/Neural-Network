@@ -63,4 +63,5 @@ class CrossEntropyLoss(Loss):
         """
         # Clip predictions to avoid division by zero
         y_pred = np.clip(y_pred, 1e-12, 1 - 1e-12)
-        return -y_true / y_pred / y_true.shape[0]
+        # For softmax + cross-entropy, the gradient is (y_pred - y_true) / batch_size
+        return (y_pred - y_true) / y_true.shape[0]

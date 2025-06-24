@@ -35,9 +35,9 @@ def main():
 
     loss_function = CrossEntropyLoss()
 
-    epochs = 5 # term for number of passes through the training datatset
+    epochs = 10 # term for number of passes through the training datatset
     batch_size = 64 # the number of training samples used in one iteration of training
-    learning_rate = 0.001 # the step size of the optimizer when updating the model parameters
+    learning_rate = 0.35 # the step size of the optimizer when updating the model parameters
 
     for epoch in range(epochs):
         indices = np.arange(x_train.shape[0])
@@ -53,15 +53,6 @@ def main():
             predictions = model.forward(x_batch)
             loss = loss_function.forward(y_batch, predictions)
 
-            # # debug prints
-            # print("x_batch shape:", x_batch.shape)
-            # print("y_batch shape:", y_batch.shape)
-            # print("predictions min/max:", predictions.min(), predictions.max())
-            # print("loss:", loss)
-            # if np.isnan(predictions).any() or np.isnan(loss):
-            #     print("NaN detected!")
-            #     break
-
             # Backward pass
             gradient = loss_function.backward(y_batch, predictions)
             model.backward(gradient)
@@ -75,6 +66,9 @@ def main():
         true_labels = np.argmax(y_train_one_hot, axis=1)
         accuracy = np.mean(pred_labels == true_labels)
         print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}, Accuracy: {accuracy * 100:.2f}%')
+        if accuracy >= 0.95:
+            print(f"Early stopping: reached {accuracy * 100:.2f}% accuracy at epoch {epoch + 1}")
+            break
     
 if __name__ == "__main__":
     main()
