@@ -42,9 +42,12 @@ class Dense(layer):
         """
         A layer in the neural network 
 
-        Parameters:
-            weights (np.ndarray): Weights of the layer, initialized randomly.
-            biases (np.ndarray): Biases of the layer, initialized to zeros.
+        Instance Variables:
+            weights (np.ndarray): The weights matrix of shape (input_size, output_size).
+            biases (np.ndarray): The bias vector of shape (1, output_size).
+            input (np.ndarray): Stores the input from the forward pass.
+            grad_weights (np.ndarray): Gradient of the loss with respect to weights.
+            grad_biases (np.ndarray): Gradient of the loss with respect to biases.
         """
         self.weights = np.random.randn(input_size, output_size) * 0.01
         self.biases = np.zeros((1, output_size))
