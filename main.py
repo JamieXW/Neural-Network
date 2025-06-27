@@ -35,7 +35,7 @@ def main():
 
     loss_function = CrossEntropyLoss()
 
-    epochs = 10 # term for number of passes through the training datatset
+    epochs = 20 # term for number of passes through the training datatset
     batch_size = 64 # the number of training samples used in one iteration of training
     learning_rate = 0.35 # the step size of the optimizer when updating the model parameters
 
@@ -66,7 +66,7 @@ def main():
         true_labels = np.argmax(y_train_one_hot, axis=1)
         accuracy = np.mean(pred_labels == true_labels)
         print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}, Accuracy: {accuracy * 100:.2f}%')
-        if accuracy >= 0.95:
+        if accuracy >= 0.9:
             print(f"Early stopping: reached {accuracy * 100:.2f}% accuracy at epoch {epoch + 1}")
             break
     
