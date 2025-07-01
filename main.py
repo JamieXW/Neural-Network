@@ -5,6 +5,7 @@ from model.activation import ReLu
 from model.activation import Softmax
 from model.optimizer import SGD
 from model.loss import CrossEntropyLoss
+from PIL import Image
 
 def load_fashion_mnist_csv(path):
     # Loads fashion MNIST from csv, returns (x, y)
@@ -16,6 +17,20 @@ def load_fashion_mnist_csv(path):
 def one_hot(y, num_classes):
     # Converts labels to one-hot encoding
     return np.eye(num_classes)[y]
+
+def preprocess_image(image_path):
+    """
+    Loads an image, converts to grayscale, resizes to 28x28, normalizes, and flattens for model input.
+    Args:
+        image_path (str): Path to the image file.
+    Returns:
+        np.ndarray: Preprocessed image as a (1, 784) numpy array.
+    """
+    img = Image.open(image_path).convert('L')  # Convert to grayscale
+    img = img.resize((28, 28))
+    img_array = np.array(img) / 255.0  # Normalize to [0, 1]
+    img_flat = img_array.flatten().reshape(1, -1)  # Shape (1, 784)
+    return img_flat
 
 def main():
     x_train, y_train = load_fashion_mnist_csv('./FashionMNIST/fashion-mnist_test.csv')
@@ -39,6 +54,13 @@ def main():
     batch_size = 64 # the number of training samples used in one iteration of training
     learning_rate = 0.35 # the step size of the optimizer when updating the model parameters
 
+    # Split into train/validation (80/20 split)
+    val_split = int(0.8 * x_train.shape[0])
+    x_val = x_train[val_split:]
+    y_val_one_hot = y_train_one_hot[val_split:]
+    x_train = x_train[:val_split]
+    y_train_one_hot = y_train_one_hot[:val_split]
+
     for epoch in range(epochs):
         indices = np.arange(x_train.shape[0])
         np.random.shuffle(indices)
@@ -60,14 +82,19 @@ def main():
             # Update parameters
             model.update_params(learning_rate)
         
-        # Evaluate accuracy after each epoch
+        # Evaluate accuracy after each epoch (train)
         all_preds = model.forward(x_train)
         pred_labels = np.argmax(all_preds, axis=1)
         true_labels = np.argmax(y_train_one_hot, axis=1)
-        accuracy = np.mean(pred_labels == true_labels)
-        print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}, Accuracy: {accuracy * 100:.2f}%')
-        if accuracy >= 0.9:
-            print(f"Early stopping: reached {accuracy * 100:.2f}% accuracy at epoch {epoch + 1}")
+        train_accuracy = np.mean(pred_labels == true_labels)
+        # Evaluate accuracy on validation set
+        val_preds = model.forward(x_val)
+        val_pred_labels = np.argmax(val_preds, axis=1)
+        val_true_labels = np.argmax(y_val_one_hot, axis=1)
+        val_accuracy = np.mean(val_pred_labels == val_true_labels)
+        print(f'Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}, Train Acc: {train_accuracy * 100:.2f}%, Val Acc: {val_accuracy * 100:.2f}%')
+        if train_accuracy >= 0.9:
+            print(f"Early stopping: reached {train_accuracy * 100:.2f}% training accuracy at epoch {epoch + 1}")
             break
     
 if __name__ == "__main__":
